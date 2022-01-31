@@ -6,7 +6,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 2.0"
+      version = "2.93.0"
     }
   }
 }
@@ -17,17 +17,17 @@ terraform {
 
 variable "resource_group_name" {
   type = string
+  default = "vnet-main"
 }
 
 variable "location" {
   type    = string
-  default = "eastus"
+  default = "northeurope"
 }
 
-
 variable "vnet_cidr_range" {
-  type    = string
-  default = "10.0.0.0/16"
+  type = list(string)
+  default = ["10.0.0.0/16"]
 }
 
 variable "subnet_prefixes" {
@@ -40,11 +40,33 @@ variable "subnet_names" {
   default = ["web", "database"]
 }
 
+variable "project_name" {
+  type    = string
+  default = ""
+}
+
+variable "environment" {
+  type    = string
+  default = ""
+}
+
+
+#############################################################################
+# DATA
+#############################################################################
+
+data "azurerm_resource_group" "example" {
+  name = "${var.project_name}-${var.environment}-rg"
+}
+
+
 #############################################################################
 # PROVIDERS
 #############################################################################
 
 provider "azurerm" {
+  # version = "~> 1.0"
+  tenant_id       = "260097cb-a66d-4caa-b2e7-b713da0789ea"
   features {}
 }
 
@@ -60,9 +82,10 @@ resource "azurerm_resource_group" "vnet_main" {
 module "vnet-main" {
   source              = "Azure/vnet/azurerm"
   version             = "~> 2.0"
-  resource_group_name = azurerm_resource_group.vnet_main.name
+  resource_group_name = var.resource_group_name
+  #location            = var.location
   vnet_name           = var.resource_group_name
-  address_space       = [var.vnet_cidr_range]
+  address_space       = var.vnet_cidr_range
   subnet_prefixes     = var.subnet_prefixes
   subnet_names        = var.subnet_names
   nsg_ids             = {}

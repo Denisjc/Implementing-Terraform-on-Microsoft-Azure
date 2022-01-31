@@ -1,8 +1,14 @@
+az login 
+
 # First we are going to deploy resources in our networking subscription
 # Be sure to select the networking subscription for your subname
 az account show
-az account set --subscription SUB_NAME
+
+az account set --subscription "Visual Studio Professional Subscription"
+az account set --subscription "Azure Free subscription"
 
 terraform init
+terraform import azurerm_resource_group.vnet_main /subscriptions/eb659321-8284-4ab0-8445-ff230d4eba46/resourceGroups/main-vnet
+terraform import azurerm_virtual_network.vnet-main /subscriptions/eb659321-8284-4ab0-8445-ff230d4eba46/resourceGroups/main-vnet/providers/Microsoft.Network/virtualNetworks/main-vnet
 terraform plan -var resource_group_name=main-vnet -out vnet.tfplan
 terraform apply "vnet.tfplan"
